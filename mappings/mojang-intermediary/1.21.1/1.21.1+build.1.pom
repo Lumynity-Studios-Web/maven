@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Mojang Intermediary Mappings</name>
+  <version>1.21.1+build.1</version>
+  <groupId>net.lumynitystudios.mappings</groupId>
+  <artifactId>mojang-intermediary</artifactId>
+  <packaging>jar</packaging>
+</project>

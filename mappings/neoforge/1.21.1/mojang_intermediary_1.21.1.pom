@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>mappings.neoforge</groupId>
-  <artifactId>1.21.1</artifactId>
-  <version>mojang_intermediary_1.21.1</version>
-  <packaging>jar</packaging>
-  <name>Mojang Intermediary Mappings 1.21.1 (NeoForge)</name>
-</project>
