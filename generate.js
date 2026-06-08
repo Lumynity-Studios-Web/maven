@@ -53,7 +53,7 @@ function generateIndex(dir) {
 const html =
 `<html>
 <head>
-<title>${displayPath}</title>
+<title>Lumynity Studios Maven</title>
 </head>
 <body bgcolor="white">
 <h2>${displayPath}</h2><hr><pre>${backLink}${lines.join("\n")}
