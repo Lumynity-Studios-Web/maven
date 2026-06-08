@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const IGNORE = [".git", "node_modules", ".github", "generate.js", "GenMavenArtifact.bat"];
+const IGNORE = [".git", "node_modules", ".github", "generate.js", "GenMavenArtifact.bat", "CNAME"];
 
 function pad(str, len) {
     return str.length >= len ? str : str + " ".repeat(len - str.length);
