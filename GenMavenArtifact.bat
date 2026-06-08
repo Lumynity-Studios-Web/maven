@@ -1,82 +1,82 @@
 @echo off
 title Add Jar To Maven
-goto in1
 
-:invalidInput
-cls 
-echo Invalid path or file name was entered. Current directory and variables have been reset.
-echo Entered: %directory%%file%.jar
-echo.
-goto :in1
+:start
+cd /D "%~dp0"
 
-:autogenerate
-::load from file
-(
-   set /p directory=
-   set /p file=
-   set /p name=
-   set /p version=
-   set /p group_id=
-   set /p artifact_id=
-)<autogenerate.txt
-if exist "%directory%%file%.jar" (
-   cd /D "%directory%"
-   goto :genJarArtifacts
-) else (
-   goto :invalidInput
+if exist autogenerate.txt (
+    (
+        set /p artifact_subpath=
+        set /p artifact_name=
+        set /p artifact_version=
+        set /p artifact_subgroup=
+        set /p artifact_id=
+    )<autogenerate.txt
+    goto :confirm
 )
 
-:in1
-cd /D %~dp0
-if exist autogenerate.txt goto :autogenerate
-echo %cd%
 echo.
+echo SUBPATH
+echo *Destination inside net\lumynitystudios\
+set /p artifact_subpath=">> "
+echo.
+echo ARTIFACT FILE NAME
+echo *Without extension
+set /p artifact_name=">> "
+echo.
+echo VERSION
+set /p artifact_version=">> "
+echo.
+echo SUBGROUP
+echo *Leave blank for none
+set /p artifact_subgroup=">> "
+echo.
+echo ARTIFACT ID
+set /p artifact_id=">> "
 
-set /p directory="Path: "
-set /p file="File Name: "
-
-if exist "%directory%%file%.jar" (
-   cd /D "%directory%"
-   goto :in2
+:confirm
+if "%artifact_subgroup%" == "" (
+    set full_group=net.lumynitystudios
 ) else (
-   goto :invalidInput
+    set full_group=net.lumynitystudios.%artifact_subgroup%
 )
 
-:in2
-set /p name="Name: "
-set /p version="Version: "
-set /p group_id="Group ID: "
-set /p artifact_id="Artifact ID: "
-REM TODO: check all to make sure they're not empty
-goto :genJarArtifacts
+set source_file=jars\%artifact_name%.jar
+set artifact_dest=net\lumynitystudios\%artifact_subpath%
 
-:genJarArtifacts
-powershell -c "(Get-FileHash -Algorithm MD5 '%file%.jar').Hash.ToLower() | Out-File -NoNewline '%file%.jar.md5'"
-powershell -c "(Get-FileHash -Algorithm SHA1 '%file%.jar').Hash.ToLower() | Out-File -NoNewline '%file%.jar.sha1'"
-powershell -c "(Get-FileHash -Algorithm SHA256 '%file%.jar').Hash.ToLower() | Out-File -NoNewline '%file%.jar.sha256'"
-goto :genPom
+echo.
+echo Source: %source_file%
+echo Dest: %artifact_dest%
+echo Group: %full_group%
+echo Artifact: %artifact_id%
+echo Version: %artifact_version%
+echo Coord: %full_group%:%artifact_id%:%artifact_version%
+echo.
 
-:genPom
-(
-   echo ^<?xml version="1.0" encoding="UTF-8"?^>
-   echo ^<project^>
-   echo   ^<modelVersion^>4.0.0^</modelVersion^>
-   echo   ^<name^>%name%^</name^>
-   echo   ^<version^>%version%^</version^>
-   echo   ^<groupId^>%group_id%^</groupId^>
-   echo   ^<artifactId^>%artifact_id%^</artifactId^>
-   echo   ^<packaging^>jar^</packaging^>
-   echo ^</project^>
-)>"%file%.pom"
-goto :genPomArtifacts
+set /p verify="Confirm? [y/n]: "
+if /i "%verify%" == "y" goto :build
+goto :start
 
-:genPomArtifacts
-powershell -c "(Get-FileHash -Algorithm MD5 '%file%.pom').Hash.ToLower() | Out-File -NoNewline '%file%.pom.md5'"
-powershell -c "(Get-FileHash -Algorithm SHA1 '%file%.pom').Hash.ToLower() | Out-File -NoNewline '%file%.pom.sha1'"
-powershell -c "(Get-FileHash -Algorithm SHA256 '%file%.pom').Hash.ToLower() | Out-File -NoNewline '%file%.pom.sha256'"
-goto :treeAndExist
+:build
+echo Installing...
+call mvn install:install-file -DgroupId=%full_group% -DartifactId=%artifact_id% -Dversion=%artifact_version% -Dfile="%source_file%" -Dpackaging=jar -DlocalRepositoryPath=. -DcreateChecksum=true -DgeneratePom=true
+if exist "%artifact_dest%maven-metadata-local.xml" (
+    copy "%artifact_dest%maven-metadata-local.xml" "%artifact_dest%maven-metadata.xml"
+    del "%artifact_dest%maven-metadata-local.xml"
+)
 
-:treeAndExit
-tree /f 
+echo Generating checksums...
+set jar_file=%artifact_dest%%artifact_id%-%artifact_version%.jar
+set pom_file=%artifact_dest%%artifact_id%-%artifact_version%.pom
+
+powershell -c "(Get-FileHash -Algorithm MD5 '%jar_file%').Hash.ToLower() | Out-File -NoNewline '%jar_file%.md5'"
+powershell -c "(Get-FileHash -Algorithm SHA1 '%jar_file%').Hash.ToLower() | Out-File -NoNewline '%jar_file%.sha1'"
+powershell -c "(Get-FileHash -Algorithm SHA256 '%jar_file%').Hash.ToLower() | Out-File -NoNewline '%jar_file%.sha256'"
+
+powershell -c "(Get-FileHash -Algorithm MD5 '%pom_file%').Hash.ToLower() | Out-File -NoNewline '%pom_file%.md5'"
+powershell -c "(Get-FileHash -Algorithm SHA1 '%pom_file%').Hash.ToLower() | Out-File -NoNewline '%pom_file%.sha1'"
+powershell -c "(Get-FileHash -Algorithm SHA256 '%pom_file%').Hash.ToLower() | Out-File -NoNewline '%pom_file%.sha256'"
+
+echo Done!
 pause >nul
 exit
