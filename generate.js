@@ -8,19 +8,21 @@ function pad(str, len) {
 }
 
 function formatDate(mtime) {
-    const date = new Date(mtime);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = date.toLocaleString("en", { month: "short" });
-    const year = date.getFullYear();
-    const hh = String(date.getHours()).padStart(2, "0");
-    const mm = String(date.getMinutes()).padStart(2, "0");
+    const d = new Date(mtime);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = d.toLocaleString("en", { month: "short" });
+    const year = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
     return `${day}-${month}-${year} ${hh}:${mm}`;
 }
 
 function formatSize(bytes) {
-    if (bytes < 1024) return bytes + "";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + "K";
-    return (bytes / (1024 * 1024)).toFixed(0) + "M";
+    if (bytes < 1024) return bytes + "B";
+    if (bytes < 1024 ** 2) return (bytes / 1024).toFixed(1) + "KB";
+    if (bytes < 1024 ** 3) return (bytes / 1024 ** 2).toFixed(1) + "MB";
+    if (bytes < 1024 ** 4) return (bytes / 1024 ** 3).toFixed(1) + "GB";
+    return (bytes / 1024 ** 4).toFixed(1) + " TB";
 }
 
 function generateIndex(dir) {
@@ -40,20 +42,21 @@ function generateIndex(dir) {
         const stat = isDir ? null : fs.statSync(path.join(dir, e.name));
         const date = isDir ? "-" : formatDate(stat.mtime);
         const size = isDir ? "-" : formatSize(stat.size);
-        const paddedName = pad(href, 50);
+        const padding = " ".repeat(Math.max(1, 50 - href.length));
         const dateStr = pad(date, 17);
-        const sizeStr = size.padStart(6);
-        return `<a href="${href}">${paddedName}</a>${dateStr}${sizeStr}`;
+        const sizeStr = size.padStart(10);
+        return `<a href="${href}">${href}</a>${padding}${dateStr}${sizeStr}`;
     });
 
     const backLink = displayPath !== "/" ? `<a href="../">../</a>\n` : "";
 
-    const html =
+const html =
 `<html>
-<head><title>Index of ${displayPath}</title></head>
-<style>pre { display: block; font-family: inherit; unicode-bidi: isolate; white-space: pre; margin-block: 1em 1em; margin-inline: 0px; }</style>
+<head>
+<title>${displayPath}</title>
+</head>
 <body bgcolor="white">
-<h1>Index of ${displayPath}</h1><hr><pre>${backLink}${lines.join("\n")}
+<h2>${displayPath}</h2><hr><pre>${backLink}${lines.join("\n")}
 </pre><hr></body>
 </html>`;
 
