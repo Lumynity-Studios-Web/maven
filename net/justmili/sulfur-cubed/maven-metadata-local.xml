@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>net.justmili</groupId>
+  <artifactId>sulfur-cubed</artifactId>
+  <versioning>
+    <release>1.1.2+mc26.2-Fabric</release>
+    <versions>
+      <version>1.0.0+mc26.2-Fabric</version>
+      <version>1.1.0+mc26.2-Fabric</version>
+      <version>1.1.1+mc26.2-Fabric</version>
+      <version>1.1.2+mc26.2-Fabric</version>
+    </versions>
+    <lastUpdated>20260721170903</lastUpdated>
+  </versioning>
+</metadata>
