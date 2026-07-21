@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const IGNORE = [".git", "node_modules", ".github", "generate.js", "GenMavenArtifact.jar", "CNAME", 
+const IGNORE = [".git", "node_modules", ".github", "generate.js", "GenMavenArtifacts.jar", "CNAME", 
     "_remote.repositories", ".gitignore", "jars", "gendata"];
 
 function pad(str, len) {
