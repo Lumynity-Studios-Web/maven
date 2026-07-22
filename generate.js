@@ -1,8 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 
-const IGNORE = [".git", "node_modules", ".github", "generate.js", "GenMavenArtifacts.jar", "CNAME", 
-    "_remote.repositories", ".gitignore", "jars", "gendata"];
+const IGNORE = ["CNAME", ".git", ".github", ".gitignore", "_remote.repositories", "README.md", 
+    "generate.js", "node_modules", "GenMavenArtifacts.jar", "jars", "gendata"];
+
+const MIN_NAME_GAP = 2;
 
 function pad(str, len) {
     return str.length >= len ? str : str + " ".repeat(len - str.length);
@@ -28,7 +30,7 @@ function formatSize(bytes) {
 
 function generateIndex(dir) {
     const entries = fs.readdirSync(dir, { withFileTypes: true })
-        .filter(e => !IGNORE.includes(e.name) && e.name !== "index.html")
+        .filter(e => !IGNORE.includes(e.name) && e.name !== "index.html" && !e.name.endsWith(".py"))
         .sort((a, b) => {
             if (a.isDirectory() !== b.isDirectory()) return a.isDirectory() ? -1 : 1;
             return a.name.localeCompare(b.name);
@@ -37,13 +39,16 @@ function generateIndex(dir) {
     const relPath = ("/" + path.relative(".", dir).replace(/\\/g, "/")).replace(/\/$/, "") + "/";
     const displayPath = relPath === "//" ? "/" : relPath;
 
-    const lines = entries.map(e => {
+    const hrefs = entries.map(e => e.name + (e.isDirectory() ? "/" : ""));
+    const nameColumnWidth = hrefs.reduce((max, href) => Math.max(max, href.length), 0) + MIN_NAME_GAP;
+
+    const lines = entries.map((e, index) => {
         const isDir = e.isDirectory();
-        const href = e.name + (isDir ? "/" : "");
+        const href = hrefs[index];
         const stat = isDir ? null : fs.statSync(path.join(dir, e.name));
         const date = isDir ? "-" : formatDate(stat.mtime);
         const size = isDir ? "-" : formatSize(stat.size);
-        const padding = " ".repeat(Math.max(1, 50 - href.length));
+        const padding = " ".repeat(Math.max(1, nameColumnWidth - href.length));
         const dateStr = pad(date, 17);
         const sizeStr = size.padStart(10);
         return `<a href="${href}">${href}</a>${padding}${dateStr}${sizeStr}`;
