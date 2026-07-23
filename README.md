@@ -6,7 +6,7 @@ Maven for all projects made by or contributed to by [Lumynity Studios](https://m
 # Where to Find The Projects?
 All maven directories and artifacts can be found at https://maven.lumynitystudios.net/ <br>
 The maven artifacts can be accessed and used by your own projects via, for example:
-```kotlinscript
+```kotlin
 repositories {
     maven("https://maven.lumynitystudios.net/")
 }
